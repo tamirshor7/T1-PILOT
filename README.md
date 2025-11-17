@@ -4,6 +4,9 @@ Official PyTorch implementation of **T1-PILOT: Optimized Trajectories for T1 Map
 Tamir Shor, Moti Freiman, Chaim Baskin, and Alex Bronstein  
 Technion – Israel Institute of Technology | Ben-Gurion University | IST Austria
 
+Presented at **ESMRMB 2025**
+
+![Model Pipeline](images/pipeline.png)
 ---
 
 ## Overview
