@@ -1,6 +1,6 @@
 # T1-PILOT: Optimized Trajectories for T1 Mapping Acceleration
 
-Official PyTorch implementation of **T1-PILOT: Optimized Trajectories for T1 Mapping Acceleration**  
+Official PyTorch implementation of [**T1-PILOT: Optimized Trajectories for T1 Mapping Acceleration**](https://arxiv.org/abs/2502.20333)  
 Tamir Shor, Moti Freiman, Chaim Baskin, and Alex Bronstein  
 Technion – Israel Institute of Technology | Ben-Gurion University | IST Austria
 
