@@ -55,7 +55,7 @@ Use the `SingleCoil` data for the experiments in the paper unless you explicitly
 This initializes the reconstruction model (`Rζ`) and learns physically feasible per-frame k-space trajectories.
 
 ### Decay model training (joint reconstruction + subsampling) — run:
-`python pretrained_tp_w_decay.py --data-path <path_to_CMRxRecon_training_set> --resume --checkpoint <path to reconstruction checkpoint> --checkpoint-decay <path_to_decay_checkpoint_from_previous_stage> --batch-size 16 --num-epochs 1000 --lr 5e-05 --lr-step-size 300 --lr-gamma 1 --weight-decay 0.0 --sub-lr 0.005 --sub-lr-time 300 --trajectory-learning <True, unless you want to use frozen trajectories> --acc-weight 0.01 --vel-weight 0.1 --rec-weight 1  --initialization <radial, or golden for GAR baseline>  --n_shots <n_shots> --single_traj <False by default, pass flag to recreate single-traj baseline> --embedding_dim 144 --embedding_lr 0.0005 --opt_decay
+`python pretrained_tp_w_decay.py --data-path <path_to_CMRxRecon_training_set> --resume --checkpoint <path to reconstruction checkpoint> --checkpoint-decay <path_to_decay_checkpoint_from_previous_stage> --batch-size 16 --num-epochs 1000 --lr 5e-05 --lr-step-size 300 --lr-gamma 1 --weight-decay 0.0 --sub-lr 0.005 --sub-lr-time 300 --trajectory-learning <True, unless you want to use frozen trajectories> --acc-weight 0.01 --vel-weight 0.1 --rec-weight 1  --initialization <radial, or golden for GAR baseline>  --n_shots <n_shots> --single_traj <False by default, pass flag to recreate single-traj baseline> --embedding-dim 144 --embedding-lr 0.0005 --opt-decay
 
 
 
