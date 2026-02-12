@@ -181,9 +181,8 @@ def train(args, decay_model, rec_model, data, optimizer, roi_indices, writer, lo
         
    
    
-        with torch.no_grad():
-            rec = rec_model(sample.permute(0,1,3,2,4),tis)
-        if iter==0:
+        rec = rec_model(sample.permute(0,1,3,2,4),tis)
+        if iter==0: #take initial reconstruction as the "fully-sampled" proxy for exponential regression
             target = rec.clone()[:,:,22:-22,:].permute(0,1,3,2).detach()
         
         output = decay_model(rec[:,:,22:-22,:].permute(0,1,3,2),tis,take_complex_abs=False).unsqueeze(2)
@@ -652,4 +651,5 @@ def create_arg_parser():
 
 if __name__ == '__main__':
     main()
+
 
