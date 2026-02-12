@@ -164,34 +164,35 @@ def train(args, decay_model, rec_model, data, optimizer, roi_indices, writer, lo
     best_map = None
     best_vif = None
     best_fsim = None
+    sample,tis = data
+    sample = sample.to(args.device)[None]
+    tis = tis.to(args.device)[None]
+    
+    
+    target = transforms.complex_abs(sample)
+    target = target[:,:,:,22:-22]
+    target[:,:3] *= -1
+    
     for iter in range(iters):
         
         new_best = False
         if optimizer is not None:
             optimizer.zero_grad()
         
-        sample,tis = data
-        sample = sample.to(args.device)[None]
-        tis = tis.to(args.device)[None]
-        
-        
-        target = transforms.complex_abs(sample)
-        target = target[:,:,:,22:-22]
-        target[:,:3] *= -1
-        #target[flip_indices[None]] *= -1
-        
-        rec = rec_model(sample.permute(0,1,3,2,4),tis)
-      
+   
+   
+        with torch.no_grad():
+            rec = rec_model(sample.permute(0,1,3,2,4),tis)
+        if iter==0:
+            target = rec.clone()[:,:,22:-22,:].permute(0,1,3,2).detach()
         
         output = decay_model(rec[:,:,22:-22,:].permute(0,1,3,2),tis,take_complex_abs=False).unsqueeze(2)
         A,B,t1 = output[:,0], output[:,1], output[:,2]
         t1  = t1 - t1.amin(dim=(1, 2, 3), keepdim=True) + eps
         decay = signal_model(A,B,t1,tis,func="min")
         
-        if args.rec_only:
-            loss = F.l1_loss(rec[:,:,22:-22,:].permute(0,1,3,2),target) if args.l1 else F.mse_loss(rec[:,:,22:-22,:].permute(0,1,3,2),target)
-        else:
-            loss = F.l1_loss(decay,target) if args.l1 else F.mse_loss(decay,target)
+  
+        loss = F.l1_loss(decay,target) if args.l1 else F.mse_loss(decay,target)
         
         decay_roi = decay[:, :,roi_indices[0]:roi_indices[1],roi_indices[2]:roi_indices[3]].cpu().detach()
         target_roi = target[:, :,roi_indices[0]:roi_indices[1],roi_indices[2]:roi_indices[3]].cpu().detach()
@@ -555,12 +556,11 @@ def main():
 def create_arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', default=0, type=int, help='Seed for random number generators')
-    parser.add_argument('--data-path', type=pathlib.Path,
-                      default='/home/tamir.shor/T1_mapping/FullSample_test', help='Path to the dataset')
+    parser.add_argument('--data-path', type=pathlib.Path, help='Path to the CMRxRecon23 dataset')
     
-    parser.add_argument('--checkpoint-rec', type=str, default= "/home/tamir.shor/T1_mapping/finetune_team_pilot/saved_weights_32/9_frames_32_shots_bs_12_u118/plain_finetune/summary/test/best_model.pt",help='Path to an existing checkpoint. Used along with "--resume"')
-    parser.add_argument('--checkpoint-decay', type=str, default= "/home/tamirshor/T1_mapping/finetune_team_pilot_exps/saved_weights_32/9_frames_32_shots_bs_12_u118/evaluate/opt_decay_frozen_rec/opt_decay_frozen_rec.pt",help='Path to an existing checkpoint. Used along with "--resume"')
-    parser.add_argument('--model-path', type=str, default='/home/tamirshor/T1_mapping/finetune_joint_400_600/summary/test/best_u_463.pt', help= 'Path to trained reconstruction model')
+    parser.add_argument('--checkpoint-rec', type=str, default= "finetune_team_pilot/saved_weights_32/9_frames_32_shots_bs_12_u118/plain_finetune/summary/test/best_model.pt",help='Path to an existing checkpoint. Used along with "--resume"')
+    parser.add_argument('--checkpoint-decay', type=str, default= "finetune_team_pilot_exps/saved_weights_32/9_frames_32_shots_bs_12_u118/evaluate/opt_decay_frozen_rec/opt_decay_frozen_rec.pt",help='Path to an existing checkpoint. Used along with "--resume"')
+    parser.add_argument('--model-path', type=str, default='finetune_joint_400_600/summary/test/best_u_463.pt', help= 'Path to trained reconstruction model')
     parser.add_argument('--test-name', type=str, default='test/', help='name for the output dir')
     parser.add_argument('--exp-dir', type=pathlib.Path, default='output/',
                         help='Path where model and results should be saved')
@@ -652,3 +652,4 @@ def create_arg_parser():
 
 if __name__ == '__main__':
     main()
+
