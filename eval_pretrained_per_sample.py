@@ -104,42 +104,6 @@ def get_metrics(gt, pred,compute_vif=False,compute_fsim=False):
 
 
 
-def plot_ims(predictions, labels, a,b,t1_star,out_dir=".", prefix="", new_best=False):
-    
-    assert predictions.shape == labels.shape, "Predictions and labels must have the same shape"
-    assert predictions.shape[0] == 9, "Both tensors must have 9 images in the first dimension"
-  
-    eps = 1e-6
-    if new_best:
-        out_dir += "/best"
-    os.makedirs(out_dir, exist_ok=True)
-    
-    for i in range(9):
-        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-        
-        # Plot prediction
-        axes[0].imshow(predictions[i].cpu().numpy(), cmap='gray')
-        axes[0].set_title("Prediction")
-        axes[0].axis("off")
-        
-        # Plot label
-        axes[1].imshow(labels[i].cpu().numpy(), cmap='gray')
-        axes[1].set_title("Label")
-        axes[1].axis("off")
-        
-        # Save the plot
-        output_path = os.path.join(out_dir, f"{prefix}_image_{i+1}.png")
-        plt.savefig(output_path)
-        plt.close(fig)
-    plt.imsave(f"{out_dir}/A.png",a.cpu().detach().numpy())
-    plt.imsave(f"{out_dir}/B.png",b.cpu().detach().numpy())
-    plt.imsave(f"{out_dir}/T_star.png",t1_star.cpu().detach().numpy())
-    t1_map = t1_star*(b/(a+eps) - 1)
-    plt.imsave(f"{out_dir}/T1_map.png",t1_map.cpu().detach().numpy())
-    with open(f'{out_dir}/t1_map.npy', 'wb') as f:
-        np.save(f, t1_map.cpu().detach().numpy())
-   
-
 
 def signal_model(A, B, t1, tis, func="min"):
     #eps = 1e-6   
@@ -225,10 +189,7 @@ def train(args, decay_model, rec_model, data, optimizer, roi_indices, writer, lo
         
         if iter % args.report_interval == 0:
             with torch.no_grad():
-                plot_ims(decay[0],target[0],A.squeeze(),B.squeeze(),t1.squeeze(),out_dir = out_dir,new_best=new_best)
-                plot_ims(decay_roi[0],target_roi[0],A[:, :,roi_indices[0]:roi_indices[1],roi_indices[2]:roi_indices[3]].squeeze(),\
-                    B[:, :,roi_indices[0]:roi_indices[1],roi_indices[2]:roi_indices[3]].squeeze(),\
-                    t1[:, :,roi_indices[0]:roi_indices[1],roi_indices[2]:roi_indices[3]].squeeze(),out_dir = f"{out_dir}_roi",new_best=new_best)
+              
             logger.info(
                 f'Epoch = [{iter:3d}/{iters:3d}] '
                 f'Loss = {loss.item():.4g} ROI Loss = {roi_loss.item():.4g} '
@@ -651,5 +612,6 @@ def create_arg_parser():
 
 if __name__ == '__main__':
     main()
+
 
 
